@@ -1,0 +1,54 @@
+version: '3.7'
+networks:
+  app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.15.0.0/24
+services:
+  webserver:
+    container_name: arduino.server
+    restart: always
+    networks:
+      app:
+        ipv4_address: 172.15.0.2
+    ports:
+      - "8000:80"
+    extra_hosts:
+      - "arduino.server:172.15.0.2"
+      - "arduino.mysql:172.15.0.3"
+      - "arduino.front:172.50.0.4"
+    volumes:
+      - ./:/var/www/html
+    build:
+      context: ./.docker/php
+      dockerfile: Dockerfile
+    image: arduino-server
+
+    environment:
+      XDEBUG_CONFIG: remote_host=172.15.0.2 #docker network ip.
+      PHP_IDE_CONFIG: "serverName=xdebug-docker"
+
+  mysqldb:
+    container_name: arduino.mysql
+    restart: always
+    networks:
+      app:
+        ipv4_address: 172.15.0.3
+    ports:
+      - '3306:3306'
+    extra_hosts:
+      - "arduino.server:172.15.0.2"
+      - "arduino.mysql:172.15.0.3"
+      - "arduino.front:172.50.0.4"
+    volumes:
+      - /media/melquiades/LocalDisk/mysql/arduino:/var/lib/mysql
+    build:
+      context: ./.docker/mysql
+      dockerfile: Dockerfile
+    image: arduino-mysql
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_DATABASE=arduino
