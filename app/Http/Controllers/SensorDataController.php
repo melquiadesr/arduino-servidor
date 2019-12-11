@@ -17,6 +17,7 @@ class SensorDataController extends BaseController
      */
     public function add(Request $request): Response
     {
+        $this->saveLogFile($request);
         if ($request->input("initializing")) {
             $sensorData = new SensorData();
             $sensorData->date_time = date('Y-m-d H:i:s');
@@ -149,5 +150,17 @@ class SensorDataController extends BaseController
         );
 
         return new Response($data, 200);
+    }
+
+    private function saveLogFile(Request $request)
+    {
+        $file = "log.txt";
+        $fp = fopen($file, "a+");
+        $text = "================================ \n";
+        $text .= date('Y-m-d H:i:s') .  "\n";
+        $text .= json_encode($request->input(), JSON_PRETTY_PRINT) . "\n";
+        $text .= "================================ \n";
+        fwrite($fp, $text);
+        fclose($fp);
     }
 }
