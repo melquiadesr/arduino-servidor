@@ -1,5 +1,5 @@
 /vendor
 /.idea
-#/.docker/logs
+/.docker/logs
 .env
 /public/log.txt
