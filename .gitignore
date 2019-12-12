@@ -2,3 +2,4 @@
 /.idea
 /.docker/logs
 .env
+/public/log.txt
